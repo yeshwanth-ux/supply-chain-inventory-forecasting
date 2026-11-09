@@ -1,0 +1,12 @@
+# Starter dependencies; validate and pin versions before deployment.
+pandas
+numpy
+scikit-learn
+SQLAlchemy
+psycopg[binary]
+pyodbc
+python-dotenv
+jupyterlab
+matplotlib
+seaborn
+# Install Airflow separately with official version constraints.
