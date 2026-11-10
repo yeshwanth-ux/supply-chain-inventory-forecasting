@@ -4,7 +4,7 @@ Starter scaffold for demand forecasting, inventory analysis, and replenishment p
 
 ## Status
 
-Modules are documented placeholders. The pipeline entry point only prints scaffold status. No datasets, models, database schema, or active Airflow DAG are included.
+Day 2 data collection is implemented with reproducible synthetic products, suppliers, inventory snapshots, orders, sales, and shipments. Forecasting, database, and Airflow components remain placeholders.
 
 ## Structure
 
@@ -46,3 +46,15 @@ After creating .env, run `docker compose up --build` to execute the scaffold ent
 Define data contracts and SQL schemas, implement ingestion and cleaning, build forecasting baselines with chronological validation, implement replenishment, then connect pipeline stages and add tests and scheduling.
 
 Local secrets, datasets, model outputs, and generated figures are ignored by Git.
+
+## Day 2: data collection
+
+Generate and validate the development datasets from the repository root:
+
+```powershell
+py -m src.data.generate_synthetic --output-dir data/synthetic --seed 42
+```
+
+This creates `products.csv`, `suppliers.csv`, `inventory.csv`, `orders.csv`, `sales.csv`, and `shipments.csv`. The fixed seed makes output reproducible. See `config/data_dictionary.md` for grain and relationships. Place unchanged external sources in `data/raw`; local dataset contents remain ignored to avoid committing sensitive or large files.
+
+Run tests with `py -m unittest discover -s tests -v`.
