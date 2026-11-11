@@ -58,7 +58,6 @@ py -m src.data.generate_synthetic --output-dir data/synthetic --seed 42
 This creates `products.csv`, `suppliers.csv`, `inventory.csv`, `orders.csv`, `sales.csv`, and `shipments.csv`. The fixed seed makes output reproducible. See `config/data_dictionary.md` for grain and relationships. Place unchanged external sources in `data/raw`; local dataset contents remain ignored to avoid committing sensitive or large files.
 
 Run tests with `py -m unittest discover -s tests -v`.
-
 ## Day 3: database setup
 
 Copy `.env.example` to `.env`, replace both example passwords, and start the databases:
