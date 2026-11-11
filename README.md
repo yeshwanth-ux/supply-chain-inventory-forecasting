@@ -58,3 +58,23 @@ py -m src.data.generate_synthetic --output-dir data/synthetic --seed 42
 This creates `products.csv`, `suppliers.csv`, `inventory.csv`, `orders.csv`, `sales.csv`, and `shipments.csv`. The fixed seed makes output reproducible. See `config/data_dictionary.md` for grain and relationships. Place unchanged external sources in `data/raw`; local dataset contents remain ignored to avoid committing sensitive or large files.
 
 Run tests with `py -m unittest discover -s tests -v`.
+
+## Day 3: database setup
+
+Copy `.env.example` to `.env`, replace both example passwords, and start the databases:
+
+```powershell
+Copy-Item .env.example .env
+docker compose up -d postgres sqlserver sqlserver-init
+docker compose ps
+```
+
+PostgreSQL initializes `sql/schema/postgres.sql` on its first empty data volume. The one-shot `sqlserver-init` service waits for SQL Server and applies `sql/schema/sqlserver.sql`. Both schemas contain suppliers, products, warehouses, inventory snapshots, customer orders, sales, and shipments with primary keys, foreign keys, checks, and query indexes.
+
+Python connections are provided by `src.database.postgres.create_postgres_engine` and `src.database.sqlserver.create_sqlserver_engine`. SQL Server also requires Microsoft ODBC Driver 18 when Python runs directly on the host. Use each module's `check_connection` helper for a live connectivity check.
+
+```powershell
+py -m src.database.check_connections --database both
+```
+
+To recreate databases from scratch, stop the services and explicitly remove their named volumes before starting them again. This deletes database contents, so only do it when the stored data is disposable.
