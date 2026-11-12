@@ -1,5 +1,5 @@
 # Starter dependencies; validate and pin versions before deployment.
-pandas
+pandas>=2.0,<3.0
 numpy
 scikit-learn
 SQLAlchemy

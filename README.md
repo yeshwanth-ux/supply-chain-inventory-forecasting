@@ -4,7 +4,7 @@ Starter scaffold for demand forecasting, inventory analysis, and replenishment p
 
 ## Status
 
-Day 2 data collection is implemented with reproducible synthetic products, suppliers, inventory snapshots, orders, sales, and shipments. Forecasting, database, and Airflow components remain placeholders.
+Data collection, database setup, and the Pandas ETL pipeline are implemented. Forecasting and Airflow components remain placeholders.
 
 ## Structure
 
@@ -77,3 +77,21 @@ py -m src.database.check_connections --database both
 ```
 
 To recreate databases from scratch, stop the services and explicitly remove their named volumes before starting them again. This deletes database contents, so only do it when the stored data is disposable.
+
+## Day 4: data cleaning and ETL
+
+Run extraction, cleaning, and processed CSV output with:
+
+```powershell
+py -m src.pipeline.run_etl --input-dir data/synthetic --output-dir data/processed
+```
+
+The pipeline standardizes column names, IDs, dates, statuses, integers, and monetary fields. It fills optional inventory reservations, removes records with invalid required values, keeps the latest duplicate primary key, removes orphaned foreign-key rows, and writes `data/processed/etl_report.json` with quality counts.
+
+After the PostgreSQL schema is initialized and `.env` contains valid credentials, load the cleaned data with idempotent upserts:
+
+```powershell
+py -m src.pipeline.run_etl --input-dir data/synthetic --output-dir data/processed --load-postgres
+```
+
+Tables are loaded in dependency order inside a transaction. Existing primary keys are updated, allowing safe reruns without duplicate records.
