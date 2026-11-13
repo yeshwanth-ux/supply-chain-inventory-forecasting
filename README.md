@@ -4,7 +4,7 @@ Starter scaffold for demand forecasting, inventory analysis, and replenishment p
 
 ## Status
 
-Data collection, database setup, and the Pandas ETL pipeline are implemented. Forecasting and Airflow components remain placeholders.
+Data collection, database setup, Pandas ETL, and SQL reporting analysis are implemented. Forecasting and Airflow components remain placeholders.
 
 ## Structure
 
@@ -95,3 +95,17 @@ py -m src.pipeline.run_etl --input-dir data/synthetic --output-dir data/processe
 ```
 
 Tables are loaded in dependency order inside a transaction. Existing primary keys are updated, allowing safe reruns without duplicate records.
+
+## Day 5: SQL analysis
+
+Reporting views are defined for both databases:
+
+- `vw_product_sales`: sales, demand, returns, and last sale by product
+- `vw_inventory_availability`: latest stock, availability, status, and recommended reorder quantity
+- `vw_monthly_sales`: monthly sales and unit trend
+- `vw_product_performance`: combined sales and inventory ranking
+- `vw_supplier_performance`: delivery counts, on-time rate, and schedule variance
+
+PostgreSQL queries are in `sql/queries/postgres_analysis.sql`; SQL Server queries are in `sql/queries/sqlserver_analysis.sql`. They cover total sales and demand, stock availability, top-selling and slow-moving products, monthly trends, and inventory valuation.
+
+Fresh Docker database volumes create the views automatically. For an existing PostgreSQL database, apply `sql/views/postgres_views.sql` with `psql`. For an existing SQL Server database, run `sql/views/sqlserver_views.sql` with SQLCMD mode enabled and supply the `DatabaseName` variable.
