@@ -4,7 +4,7 @@ Starter scaffold for demand forecasting, inventory analysis, and replenishment p
 
 ## Status
 
-Data collection, database setup, Pandas ETL, and SQL reporting analysis are implemented. Forecasting and Airflow components remain placeholders.
+Data collection, database setup, Pandas ETL, SQL reporting, and exploratory analysis are implemented. Forecasting and Airflow components remain placeholders.
 
 ## Structure
 
@@ -109,3 +109,13 @@ Reporting views are defined for both databases:
 PostgreSQL queries are in `sql/queries/postgres_analysis.sql`; SQL Server queries are in `sql/queries/sqlserver_analysis.sql`. They cover total sales and demand, stock availability, top-selling and slow-moving products, monthly trends, and inventory valuation.
 
 Fresh Docker database volumes create the views automatically. For an existing PostgreSQL database, apply `sql/views/postgres_views.sql` with `psql`. For an existing SQL Server database, run `sql/views/sqlserver_views.sql` with SQLCMD mode enabled and supply the `DatabaseName` variable.
+
+## Day 6: exploratory data analysis
+
+Generate analysis tables, four PNG figures, and the business-insights report with:
+
+```powershell
+py -m src.analysis.eda --data-dir data/synthetic --figure-dir reports/figures --report reports/day6_eda.md
+```
+
+The workflow analyzes monthly sales and demand, complete-month seasonality, product performance, latest inventory availability, and sales and inventory distributions. It excludes the final partial month from seasonal comparisons and documents the limited history available for seasonal conclusions.
