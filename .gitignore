@@ -17,6 +17,7 @@ venv/
 /reports/figures/*
 !/reports/figures/.gitkeep
 /reports/eda_tables/*
+/reports/inventory_tables/*
 .vscode/
 .idea/
 Thumbs.db

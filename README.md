@@ -4,7 +4,7 @@ Starter scaffold for demand forecasting, inventory analysis, and replenishment p
 
 ## Status
 
-Data collection, database setup, Pandas ETL, SQL reporting, and exploratory analysis are implemented. Forecasting and Airflow components remain placeholders.
+Data collection, database setup, Pandas ETL, SQL reporting, exploratory analysis, and inventory analysis are implemented. Forecasting and Airflow components remain placeholders.
 
 ## Structure
 
@@ -119,3 +119,15 @@ py -m src.analysis.eda --data-dir data/synthetic --figure-dir reports/figures --
 ```
 
 The workflow analyzes monthly sales and demand, complete-month seasonality, product performance, latest inventory availability, and sales and inventory distributions. It excludes the final partial month from seasonal comparisons and documents the limited history available for seasonal conclusions.
+
+## Day 7: inventory analysis
+
+Calculate stock availability, turnover, low stock, excess and slow-moving inventory, and stockout risk with:
+
+```powershell
+py -m src.inventory.analysis --data-dir data/synthetic --report reports/day7_inventory_analysis.md
+```
+
+The workflow writes product-level results to `reports/inventory_tables/inventory_analysis.csv` and documents definitions and actions in the Markdown report. Thresholds can be changed with `--trailing-days`, `--excess-cover-days`, and `--slow-turnover-threshold`.
+
+Because the current data contains one inventory snapshot, turnover is explicitly reported as annualized unit demand divided by current on-hand stock. Add periodic snapshots before using the standard average-inventory turnover formula.
