@@ -4,7 +4,7 @@ Starter scaffold for demand forecasting, inventory analysis, and replenishment p
 
 ## Status
 
-Data collection, database setup, Pandas ETL, SQL reporting, exploratory analysis, and inventory analysis are implemented. Forecasting and Airflow components remain placeholders.
+Data collection, database setup, Pandas ETL, SQL reporting, exploratory analysis, inventory analysis, and forecasting preparation are implemented. Forecast model training and Airflow components remain placeholders.
 
 ## Structure
 
@@ -131,3 +131,15 @@ py -m src.inventory.analysis --data-dir data/synthetic --report reports/day7_inv
 The workflow writes product-level results to `reports/inventory_tables/inventory_analysis.csv` and documents definitions and actions in the Markdown report. Thresholds can be changed with `--trailing-days`, `--excess-cover-days`, and `--slow-turnover-threshold`.
 
 Because the current data contains one inventory snapshot, turnover is explicitly reported as annualized unit demand divided by current on-hand stock. Add periodic snapshots before using the standard average-inventory turnover formula.
+
+## Day 8: demand forecasting preparation
+
+Create complete daily demand history and chronological model datasets with:
+
+```powershell
+py -m src.forecasting.prepare --data-dir data/synthetic --output-dir data/processed/forecasting --report reports/day8_forecasting_preparation.md
+```
+
+The workflow aggregates non-cancelled order quantities by product and date, inserts missing product/date combinations with zero demand, and adds past-only calendar, lag, and rolling features. It writes `daily_demand.csv`, `model_data.csv`, `train.csv`, `test.csv`, and `metadata.json` under the output directory.
+
+The default test set contains the final 30 calendar days for every product. Change the holdout with `--test-days`; chronological boundaries remain shared across products to prevent leakage.
