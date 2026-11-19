@@ -10,7 +10,13 @@ from typing import Any
 import pandas as pd
 
 from src.analysis.common import load_clean_datasets
-from src.features.feature_engineering import LAG_DAYS, ROLLING_WINDOWS, add_demand_features
+from src.features.feature_engineering import (
+    DEMAND_FEATURES,
+    LAG_DAYS,
+    MODEL_FEATURES,
+    ROLLING_WINDOWS,
+    add_demand_features,
+)
 
 
 def build_daily_demand(frames: dict[str, pd.DataFrame]) -> pd.DataFrame:
@@ -55,12 +61,7 @@ def split_forecasting_data(
             f"Need at least {test_days + minimum_training_days} daily observations; found {len(unique_dates)}"
         )
     featured = add_demand_features(daily_demand)
-    required_features = [
-        *(f"demand_lag_{lag}" for lag in LAG_DAYS),
-        *(f"demand_rolling_mean_{window}" for window in ROLLING_WINDOWS),
-        *(f"demand_rolling_std_{window}" for window in ROLLING_WINDOWS),
-    ]
-    model_data = featured.dropna(subset=required_features).reset_index(drop=True)
+    model_data = featured.dropna(subset=list(DEMAND_FEATURES)).reset_index(drop=True)
     test_start = pd.Timestamp(unique_dates[-test_days])
     training = model_data.loc[model_data["date"] < test_start].reset_index(drop=True)
     testing = model_data.loc[model_data["date"] >= test_start].reset_index(drop=True)
@@ -89,6 +90,10 @@ def split_forecasting_data(
         "test_days": test_days,
         "minimum_training_days": minimum_training_days,
         "maximum_lag_days": max(LAG_DAYS),
+        "lag_days": list(LAG_DAYS),
+        "rolling_windows": list(ROLLING_WINDOWS),
+        "target_column": "target_demand",
+        "model_features": list(MODEL_FEATURES),
     }
     return model_data, training, testing, metadata
 
@@ -109,13 +114,22 @@ def write_forecasting_outputs(
     model_data.to_csv(output / "model_data.csv", index=False, date_format="%Y-%m-%d")
     training.to_csv(output / "train.csv", index=False, date_format="%Y-%m-%d")
     testing.to_csv(output / "test.csv", index=False, date_format="%Y-%m-%d")
+    final_columns = ["product_id", "date", "demand", *MODEL_FEATURES]
+    final_training = training.loc[:, final_columns].rename(columns={"demand": "target_demand"})
+    final_testing = testing.loc[:, final_columns].rename(columns={"demand": "target_demand"})
+    final_training.to_csv(
+        output / "final_training_data.csv", index=False, date_format="%Y-%m-%d"
+    )
+    final_testing.to_csv(
+        output / "final_testing_data.csv", index=False, date_format="%Y-%m-%d"
+    )
     (output / "metadata.json").write_text(json.dumps(metadata, indent=2), encoding="utf-8")
 
     report = Path(report_path)
     report.parent.mkdir(parents=True, exist_ok=True)
     missing_dates_filled = metadata["zero_demand_rows"]
     lines = [
-        "# Day 8 Demand Forecasting Preparation",
+        "# Day 9 Feature Engineering",
         "",
         "## Demand definition",
         "",
@@ -137,7 +151,9 @@ def write_forecasting_outputs(
         "",
         "## Model features",
         "",
-        "Calendar features include weekday, month, quarter, day of year, and weekend status. Demand features include 1, 7, 14, and 28-day lags plus 7 and 28-day trailing means and standard deviations. Every demand feature uses only earlier dates.",
+        "Calendar features include month, day, weekday, quarter, weekend, cyclical time encodings, and one-hot seasonal indicators. Demand features include previous-day demand, 7-day and 30-day lags, and 7-day and 30-day trailing means and standard deviations. Every demand feature uses only earlier dates.",
+        "",
+        "The final training and testing files contain identifiers, a numeric product code, the target demand, and only model features. The source `product_id` and `date` columns remain available for traceability and chronological evaluation.",
         "",
         "## Modeling notes",
         "",
@@ -170,7 +186,7 @@ def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--data-dir", type=Path, default=Path("data/synthetic"))
     parser.add_argument("--output-dir", type=Path, default=Path("data/processed/forecasting"))
-    parser.add_argument("--report", type=Path, default=Path("reports/day8_forecasting_preparation.md"))
+    parser.add_argument("--report", type=Path, default=Path("reports/day9_feature_engineering.md"))
     parser.add_argument("--test-days", type=int, default=30)
     parser.add_argument("--minimum-training-days", type=int, default=90)
     args = parser.parse_args()

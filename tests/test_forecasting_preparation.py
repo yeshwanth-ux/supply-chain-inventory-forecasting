@@ -32,14 +32,14 @@ class ForecastingPreparationTests(unittest.TestCase):
         model, training, testing, metadata = split_forecasting_data(self.daily, test_days=30)
         self.assertLess(training["date"].max(), testing["date"].min())
         self.assertEqual(testing["date"].nunique(), 30)
-        self.assertFalse(model.filter(regex=r"demand_(lag|rolling)").isna().any().any())
+        self.assertFalse(model.filter(regex=r"(previous_day_demand|demand_(lag|rolling))").isna().any().any())
         row = model.iloc[0]
         previous = self.daily.loc[
             (self.daily["product_id"] == row["product_id"])
             & (self.daily["date"] == row["date"] - pd.Timedelta(days=1)),
             "demand",
         ].iloc[0]
-        self.assertEqual(row["demand_lag_1"], previous)
+        self.assertEqual(row["previous_day_demand"], previous)
         self.assertEqual(metadata["training_rows"] + metadata["testing_rows"], metadata["model_rows"])
 
     def test_workflow_writes_all_model_datasets(self) -> None:
@@ -47,7 +47,15 @@ class ForecastingPreparationTests(unittest.TestCase):
             root = Path(output)
             report = root / "day8.md"
             metadata = run_preparation(self.source.name, root / "forecasting", report)
-            for filename in ("daily_demand.csv", "model_data.csv", "train.csv", "test.csv", "metadata.json"):
+            for filename in (
+                "daily_demand.csv",
+                "model_data.csv",
+                "train.csv",
+                "test.csv",
+                "final_training_data.csv",
+                "final_testing_data.csv",
+                "metadata.json",
+            ):
                 self.assertTrue((root / "forecasting" / filename).is_file())
             self.assertTrue(report.is_file())
             self.assertEqual(metadata["test_days"], 30)

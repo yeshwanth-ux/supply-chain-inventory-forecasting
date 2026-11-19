@@ -143,3 +143,15 @@ py -m src.forecasting.prepare --data-dir data/synthetic --output-dir data/proces
 The workflow aggregates non-cancelled order quantities by product and date, inserts missing product/date combinations with zero demand, and adds past-only calendar, lag, and rolling features. It writes `daily_demand.csv`, `model_data.csv`, `train.csv`, `test.csv`, and `metadata.json` under the output directory.
 
 The default test set contains the final 30 calendar days for every product. Change the holdout with `--test-days`; chronological boundaries remain shared across products to prevent leakage.
+
+## Day 9: feature engineering
+
+Generate leakage-safe model features and final training data with:
+
+```powershell
+py -m src.forecasting.prepare --data-dir data/synthetic --output-dir data/processed/forecasting --report reports/day9_feature_engineering.md
+```
+
+The workflow creates previous-day demand, 7-day and 30-day demand lags, 7-day and 30-day trailing averages and standard deviations, calendar fields, cyclical date encodings, and seasonal indicators. Rolling calculations are shifted by one day, so each row uses only information available before its target date.
+
+`final_training_data.csv` and `final_testing_data.csv` contain the numeric model features and `target_demand`, while retaining `product_id` and `date` for traceability. Fit preprocessing and forecasting models only on the training file.
