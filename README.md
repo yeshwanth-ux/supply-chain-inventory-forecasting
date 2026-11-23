@@ -167,3 +167,15 @@ py -m src.forecasting.baseline --data-dir data/synthetic --output-dir data/proce
 The workflow backtests both baselines from one shared forecast origin over 7-day, 14-day, and 30-day horizons. Moving-average predictions use a 7-day window by default and are generated recursively without reading holdout actuals. Change the window with `--moving-average-window`.
 
 Outputs include a combined prediction file, one file per forecast horizon, comparison metrics, metadata, and a Markdown report. MAE, RMSE, mean error, and WAPE provide consistent benchmarks for later models.
+
+## Day 11: machine learning models
+
+Train and compare tuned Random Forest and Gradient Boosting models with:
+
+```powershell
+py -m src.forecasting.ml_models --data-dir data/synthetic --output-dir data/processed/forecasting/ml --model-dir models/day11 --report reports/day11_ml_models.md
+```
+
+The workflow uses a chronological validation window to tune tree count, depth, leaf size, and learning rate where applicable. It refits each selected configuration on the full training period, generates nonnegative holdout predictions, and compares MAE, RMSE, WAPE, mean error, and R².
+
+Outputs include model predictions, performance metrics, all tuning candidates, feature importances, metadata, and serialized fitted models. The default validation window is 30 days and can be changed with `--validation-days`.
