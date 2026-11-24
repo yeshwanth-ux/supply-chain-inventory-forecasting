@@ -179,3 +179,15 @@ py -m src.forecasting.ml_models --data-dir data/synthetic --output-dir data/proc
 The workflow uses a chronological validation window to tune tree count, depth, leaf size, and learning rate where applicable. It refits each selected configuration on the full training period, generates nonnegative holdout predictions, and compares MAE, RMSE, WAPE, mean error, and R².
 
 Outputs include model predictions, performance metrics, all tuning candidates, feature importances, metadata, and serialized fitted models. The default validation window is 30 days and can be changed with `--validation-days`.
+
+## Day 12: forecast evaluation
+
+Evaluate the trained model candidates and save the best model with:
+
+```powershell
+py -m src.forecasting.forecast_evaluation --data-dir data/synthetic --output-dir data/processed/forecasting/evaluation --model-path models/day12/best_forecasting_model.joblib --report reports/day12_forecast_evaluation.md
+```
+
+The workflow compares Random Forest and Gradient Boosting predictions against the same chronological holdout using MAE, RMSE, WAPE, average forecast bias, and percentage bias. It selects the lowest-MAE model, with RMSE, WAPE, absolute bias, and model name used as deterministic tie-breakers.
+
+The selected model is saved as a bundle containing the fitted estimator, ordered feature contract, target definition, nonnegative prediction floor, evaluation metrics, and training metadata for future prediction workflows.
