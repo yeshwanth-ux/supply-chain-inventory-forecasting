@@ -191,3 +191,15 @@ py -m src.forecasting.forecast_evaluation --data-dir data/synthetic --output-dir
 The workflow compares Random Forest and Gradient Boosting predictions against the same chronological holdout using MAE, RMSE, WAPE, average forecast bias, and percentage bias. It selects the lowest-MAE model, with RMSE, WAPE, absolute bias, and model name used as deterministic tie-breakers.
 
 The selected model is saved as a bundle containing the fitted estimator, ordered feature contract, target definition, nonnegative prediction floor, evaluation metrics, and training metadata for future prediction workflows.
+
+## Day 13: inventory optimization
+
+Generate safety stock, reorder points, and automated replenishment recommendations with:
+
+```powershell
+py -m src.inventory.replenishment --data-dir data/synthetic --output-dir data/processed/inventory_optimization --report reports/day13_inventory_optimization.md
+```
+
+The workflow calculates zero-filled daily demand variability, service-level safety stock, supplier lead-time demand, reorder points, inventory position, and order-up-to quantities. Available stock excludes reservations, while inventory position adds undelivered inbound shipments to avoid duplicate purchasing.
+
+Outputs include recommendations for every product, an action-only queue, summary metadata, and a Markdown report. Defaults use a 95% service level, 90 demand-history days, and a 30-day review period; all three assumptions are configurable through command-line options.
