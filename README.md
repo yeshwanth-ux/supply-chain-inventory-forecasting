@@ -203,3 +203,15 @@ py -m src.inventory.replenishment --data-dir data/synthetic --output-dir data/pr
 The workflow calculates zero-filled daily demand variability, service-level safety stock, supplier lead-time demand, reorder points, inventory position, and order-up-to quantities. Available stock excludes reservations, while inventory position adds undelivered inbound shipments to avoid duplicate purchasing.
 
 Outputs include recommendations for every product, an action-only queue, summary metadata, and a Markdown report. Defaults use a 95% service level, 90 demand-history days, and a 30-day review period; all three assumptions are configurable through command-line options.
+
+## Day 14: supplier and order analysis
+
+Analyze supplier delivery and inbound purchase-order performance with:
+
+```powershell
+py -m src.analysis.supplier_analysis --data-dir data/synthetic --output-dir data/processed/supplier_analysis --report reports/day14_supplier_analysis.md
+```
+
+The workflow calculates promised and actual lead times, on-time and late-delivery rates, delivery schedule variance, open overdue shipments, and inbound order status by supplier. Since the source data has no separate purchase-order header, each shipment record is treated as an inbound purchase-order line.
+
+Suppliers are classified with transparent reliability checks covering on-time performance, configured reliability, actual-versus-configured lead time, and open overdue shipments. Outputs include supplier performance, delayed-shipment details, purchase-order status, summary metadata, and a Markdown report.
